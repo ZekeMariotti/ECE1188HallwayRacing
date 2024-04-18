@@ -88,7 +88,7 @@ void OLEDinit(void){SSD1306_Init(SSD1306_SWITCHCAPVCC);}
 
 #ifdef USEUART
 // this batch configures for UART link to PC
-#include "../inc/UART0.h"
+#include "UART0.h"
 void UartSetCur(uint8_t newX, uint8_t newY){
   if(newX == 6){
     UART0_OutString("\n\rTxChannel= ");
