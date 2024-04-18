@@ -58,8 +58,8 @@ policies, either expressed or implied, of the FreeBSD Project.
 #include "FFT.h"
 // Select one of the following three output possibilities
 // define USENOKIA
-#define USEOLED 1
-//#define USEUART
+//#define USEOLED 1
+#define USEUART
 
 #ifdef USENOKIA
 // this batch configures for LCD
@@ -553,6 +553,7 @@ void main(void){ // wallFollow wall following implementation
   Clock_Init48MHz();
   Bump_Init();
   LaunchPad_Init(); // built-in switches and LEDs
+  Motor_Init();
   Motor_Stop(); // initialize and stop
   Mode = 0;
   I2CB1_Init(30); // baud rate = 12MHz/30=400kHz
@@ -585,6 +586,7 @@ void main(void){ // wallFollow wall following implementation
   UR = UL = PWMNOMINAL; //initial power
   Pause();
   EnableInterrupts();
+  Motor_Forward(7000, 7000);
   while(1){
     if(Bump_Read()){ // collision
       Mode = 0;
