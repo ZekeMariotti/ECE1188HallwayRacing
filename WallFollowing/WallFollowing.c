@@ -11,6 +11,8 @@
 #include "UART0.h"
 #include "SSD1306.h"
 #include "FFT.h"
+#include "Reflectance.h"
+#include "SysTickInts.h"
 
 // Functions and defines from Lab21_OPT3101_TestMain.c
 #define USEUART
@@ -182,13 +184,43 @@ void Pause(void)
     Mode = 1;
 }
 
+volatile uint32_t Time, MainCount;
+uint8_t lightSensorResult = 0;
+uint8_t past_start = 0;
+uint8_t hit_white_paper = 0;
+
+void SysTick_Handler(void)
+{
+    if (Time%10 == 0)
+    {
+        Reflectance_Start();
+    }
+    else if (Time%10 == 1)
+    {
+        lightSensorResult = Reflectance_End();
+        if (lightSensorResult == 0x00)
+        {
+            hit_white_paper = 1;
+        }
+        // Possibly check for more finish line orientations
+        if (((lightSensorResult == 0xff) || (lightSensorResult == 0xfe) || (lightSensorResult == 0x7e) || (lightSensorResult == 0x7f)) && (past_start != 0) && (hit_white_paper == 1))
+        {
+            Mode = 0;
+            Motor_Stop();
+        }
+    }
+
+    Time += 1;
+}
+
 int main(void)
 {
     int i = 0;
     uint32_t channel = 1;
-    char command;
+    Time = MainCount = 0;
     DisableInterrupts();
     Clock_Init48MHz();
+    SysTick_Init(48000, 2);
     Bump_Init();
     LaunchPad_Init(); // built-in switches and LEDs
     Motor_Init();
@@ -196,22 +228,6 @@ int main(void)
     Mode = 0;
     I2CB1_Init(30); // baud rate = 12MHz/30=400kHz
     UART0_Init();
-//    Clear();
-//    OutString("OPT3101");
-//    SetCursor(0, 1);
-//    OutString("L=");
-//    SetCursor(0, 2);
-//    OutString("C=");
-//    SetCursor(0, 3);
-//    OutString("R=");
-//    SetCursor(0, 4);
-//    OutString("Wall follow");
-//    SetCursor(0, 5);
-//    OutString("SP=");
-//    SetCursor(0, 6);
-//    OutString("Er=");
-//    SetCursor(0, 7);
-//    OutString("U =");
     OPT3101_Init();
     OPT3101_Setup();
     OPT3101_CalibrateInternalCrosstalk();
@@ -225,22 +241,15 @@ int main(void)
     Pause();
     EnableInterrupts();
     Motor_Forward(7000, 7000);
+    past_start = 1;
     while(1)
     {
-        command = UART0_InChar();
         if(Bump_Read())
         { // collision
             Mode = 0;
             Motor_Stop();
             Clock_Delay1ms(500);
             Mode = 1;
-        }
-
-        if(command == 'g') { Mode = 1; }
-        else if (command == 's')
-        { // stop the robot
-            Mode = 0;
-            Motor_Stop();
         }
 
         if(TxChannel <= 2)
