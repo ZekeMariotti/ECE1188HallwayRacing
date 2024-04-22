@@ -215,7 +215,6 @@ void SysTick_Handler(void)
 
 int main(void)
 {
-    int i = 0;
     uint32_t channel = 1;
     Time = MainCount = 0;
     DisableInterrupts();
@@ -291,19 +290,8 @@ int main(void)
             TxChannel = 3; // 3 means no data
             channel = (channel+1)%3;
             OPT3101_StartMeasurementChannel(channel);
-            i = i + 1;
         }
         Controller();
-//        if(i >= 100)
-//        {
-//            i = 0;
-//            SetCursor(3, 5);
-//            OutUDec(SetPoint);
-//            SetCursor(3, 6);
-//            OutSDec(Error);
-//            SetCursor(3, 7);
-//            OutUDec(UL); OutChar(','); OutUDec(UR);
-//        }
         WaitForInterrupt();
     }
 }
