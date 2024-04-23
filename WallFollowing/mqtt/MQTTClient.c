@@ -16,6 +16,10 @@
 
 #include "MQTTClient.h"
 
+#ifndef NULL
+#define NULL   ((void *) 0)
+#endif
+
 void NewMessageData(MessageData* md, MQTTString* aTopicName, MQTTMessage* aMessgage) {
     md->topicName = aTopicName;
     md->message = aMessgage;

@@ -128,210 +128,210 @@ static void generateUniqueID();
  */
 
 
-/*
- * ASYNCHRONOUS EVENT HANDLERS -- Start
- */
-
-/*!
-    \brief This function handles WLAN events
-
-    \param[in]      pWlanEvent is the event passed to the handler
-
-    \return         None
-
-    \note
-
-    \warning
-*/
-void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
-{
-    if(pWlanEvent == NULL)
-        CLI_Write(" [WLAN EVENT] NULL Pointer Error \n\r");
-    
-    switch(pWlanEvent->Event)
-    {
-        case SL_WLAN_CONNECT_EVENT:
-        {
-            SET_STATUS_BIT(g_Status, STATUS_BIT_CONNECTION);
-
-            /*
-             * Information about the connected AP (like name, MAC etc) will be
-             * available in 'slWlanConnectAsyncResponse_t' - Applications
-             * can use it if required
-             *
-             * slWlanConnectAsyncResponse_t *pEventData = NULL;
-             * pEventData = &pWlanEvent->EventData.STAandP2PModeWlanConnected;
-             *
-             */
-        }
-        break;
-
-        case SL_WLAN_DISCONNECT_EVENT:
-        {
-            slWlanConnectAsyncResponse_t*  pEventData = NULL;
-
-            CLR_STATUS_BIT(g_Status, STATUS_BIT_CONNECTION);
-            CLR_STATUS_BIT(g_Status, STATUS_BIT_IP_ACQUIRED);
-
-            pEventData = &pWlanEvent->EventData.STAandP2PModeDisconnected;
-
-            /* If the user has initiated 'Disconnect' request, 'reason_code' is SL_USER_INITIATED_DISCONNECTION */
-            if(SL_USER_INITIATED_DISCONNECTION == pEventData->reason_code)
-            {
-                CLI_Write(" Device disconnected from the AP on application's request \n\r");
-            }
-            else
-            {
-                CLI_Write(" Device disconnected from the AP on an ERROR..!! \n\r");
-            }
-        }
-        break;
-
-        default:
-        {
-            CLI_Write(" [WLAN EVENT] Unexpected event \n\r");
-        }
-        break;
-    }
-}
-
-/*!
-    \brief This function handles events for IP address acquisition via DHCP
-           indication
-
-    \param[in]      pNetAppEvent is the event passed to the handler
-
-    \return         None
-
-    \note
-
-    \warning
-*/
-void SimpleLinkNetAppEventHandler(SlNetAppEvent_t *pNetAppEvent)
-{
-    if(pNetAppEvent == NULL)
-        CLI_Write(" [NETAPP EVENT] NULL Pointer Error \n\r");
- 
-    switch(pNetAppEvent->Event)
-    {
-        case SL_NETAPP_IPV4_IPACQUIRED_EVENT:
-        {
-            SET_STATUS_BIT(g_Status, STATUS_BIT_IP_ACQUIRED);
-
-            /*
-             * Information about the connected AP's IP, gateway, DNS etc
-             * will be available in 'SlIpV4AcquiredAsync_t' - Applications
-             * can use it if required
-             *
-             * SlIpV4AcquiredAsync_t *pEventData = NULL;
-             * pEventData = &pNetAppEvent->EventData.ipAcquiredV4;
-             * <gateway_ip> = pEventData->gateway;
-             *
-             */
-        }
-        break;
-
-        default:
-        {
-            CLI_Write(" [NETAPP EVENT] Unexpected event \n\r");
-        }
-        break;
-    }
-}
-
-/*!
-    \brief This function handles callback for the HTTP server events
-
-    \param[in]      pHttpEvent - Contains the relevant event information
-    \param[in]      pHttpResponse - Should be filled by the user with the
-                    relevant response information
-
-    \return         None
-
-    \note
-
-    \warning
-*/
-void SimpleLinkHttpServerCallback(SlHttpServerEvent_t *pHttpEvent,
-                                  SlHttpServerResponse_t *pHttpResponse)
-{
-    /*
-     * This application doesn't work with HTTP server - Hence these
-     * events are not handled here
-     */
-    CLI_Write(" [HTTP EVENT] Unexpected event \n\r");
-}
-
-/*!
-    \brief This function handles general error events indication
-
-    \param[in]      pDevEvent is the event passed to the handler
-
-    \return         None
-*/
-void SimpleLinkGeneralEventHandler(SlDeviceEvent_t *pDevEvent)
-{
-    /*
-     * Most of the general errors are not FATAL are are to be handled
-     * appropriately by the application
-     */
-    CLI_Write(" [GENERAL EVENT] \n\r");
-}
-
-/*!
-    \brief This function handles socket events indication
-
-    \param[in]      pSock is the event passed to the handler
-
-    \return         None
-*/
-void SimpleLinkSockEventHandler(SlSockEvent_t *pSock)
-{
-    if(pSock == NULL)
-        CLI_Write(" [SOCK EVENT] NULL Pointer Error \n\r");
-
-    switch( pSock->Event )
-    {
-        case SL_SOCKET_TX_FAILED_EVENT:
-        {
-            /*
-            * TX Failed
-            *
-            * Information about the socket descriptor and status will be
-            * available in 'SlSockEventData_t' - Applications can use it if
-            * required
-            *
-            * SlSockEventData_t *pEventData = NULL;
-            * pEventData = & pSock->EventData;
-            */
-            switch( pSock->EventData.status )
-            {
-                case SL_ECLOSE:
-                    CLI_Write(" [SOCK EVENT] Close socket operation failed to transmit all queued packets\n\r");
-                break;
-
-
-                default:
-                    CLI_Write(" [SOCK EVENT] Unexpected event \n\r");
-                break;
-            }
-        }
-        break;
-
-        default:
-            CLI_Write(" [SOCK EVENT] Unexpected event \n\r");
-        break;
-    }
-}
-/*
- * ASYNCHRONOUS EVENT HANDLERS -- End
- */
+///*
+// * ASYNCHRONOUS EVENT HANDLERS -- Start
+// */
+//
+///*!
+//    \brief This function handles WLAN events
+//
+//    \param[in]      pWlanEvent is the event passed to the handler
+//
+//    \return         None
+//
+//    \note
+//
+//    \warning
+//*/
+//void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent)
+//{
+//    if(pWlanEvent == NULL)
+//        CLI_Write(" [WLAN EVENT] NULL Pointer Error \n\r");
+//
+//    switch(pWlanEvent->Event)
+//    {
+//        case SL_WLAN_CONNECT_EVENT:
+//        {
+//            SET_STATUS_BIT(g_Status, STATUS_BIT_CONNECTION);
+//
+//            /*
+//             * Information about the connected AP (like name, MAC etc) will be
+//             * available in 'slWlanConnectAsyncResponse_t' - Applications
+//             * can use it if required
+//             *
+//             * slWlanConnectAsyncResponse_t *pEventData = NULL;
+//             * pEventData = &pWlanEvent->EventData.STAandP2PModeWlanConnected;
+//             *
+//             */
+//        }
+//        break;
+//
+//        case SL_WLAN_DISCONNECT_EVENT:
+//        {
+//            slWlanConnectAsyncResponse_t*  pEventData = NULL;
+//
+//            CLR_STATUS_BIT(g_Status, STATUS_BIT_CONNECTION);
+//            CLR_STATUS_BIT(g_Status, STATUS_BIT_IP_ACQUIRED);
+//
+//            pEventData = &pWlanEvent->EventData.STAandP2PModeDisconnected;
+//
+//            /* If the user has initiated 'Disconnect' request, 'reason_code' is SL_USER_INITIATED_DISCONNECTION */
+//            if(SL_USER_INITIATED_DISCONNECTION == pEventData->reason_code)
+//            {
+//                CLI_Write(" Device disconnected from the AP on application's request \n\r");
+//            }
+//            else
+//            {
+//                CLI_Write(" Device disconnected from the AP on an ERROR..!! \n\r");
+//            }
+//        }
+//        break;
+//
+//        default:
+//        {
+//            CLI_Write(" [WLAN EVENT] Unexpected event \n\r");
+//        }
+//        break;
+//    }
+//}
+//
+///*!
+//    \brief This function handles events for IP address acquisition via DHCP
+//           indication
+//
+//    \param[in]      pNetAppEvent is the event passed to the handler
+//
+//    \return         None
+//
+//    \note
+//
+//    \warning
+//*/
+//void SimpleLinkNetAppEventHandler(SlNetAppEvent_t *pNetAppEvent)
+//{
+//    if(pNetAppEvent == NULL)
+//        CLI_Write(" [NETAPP EVENT] NULL Pointer Error \n\r");
+//
+//    switch(pNetAppEvent->Event)
+//    {
+//        case SL_NETAPP_IPV4_IPACQUIRED_EVENT:
+//        {
+//            SET_STATUS_BIT(g_Status, STATUS_BIT_IP_ACQUIRED);
+//
+//            /*
+//             * Information about the connected AP's IP, gateway, DNS etc
+//             * will be available in 'SlIpV4AcquiredAsync_t' - Applications
+//             * can use it if required
+//             *
+//             * SlIpV4AcquiredAsync_t *pEventData = NULL;
+//             * pEventData = &pNetAppEvent->EventData.ipAcquiredV4;
+//             * <gateway_ip> = pEventData->gateway;
+//             *
+//             */
+//        }
+//        break;
+//
+//        default:
+//        {
+//            CLI_Write(" [NETAPP EVENT] Unexpected event \n\r");
+//        }
+//        break;
+//    }
+//}
+//
+///*!
+//    \brief This function handles callback for the HTTP server events
+//
+//    \param[in]      pHttpEvent - Contains the relevant event information
+//    \param[in]      pHttpResponse - Should be filled by the user with the
+//                    relevant response information
+//
+//    \return         None
+//
+//    \note
+//
+//    \warning
+//*/
+//void SimpleLinkHttpServerCallback(SlHttpServerEvent_t *pHttpEvent,
+//                                  SlHttpServerResponse_t *pHttpResponse)
+//{
+//    /*
+//     * This application doesn't work with HTTP server - Hence these
+//     * events are not handled here
+//     */
+//    CLI_Write(" [HTTP EVENT] Unexpected event \n\r");
+//}
+//
+///*!
+//    \brief This function handles general error events indication
+//
+//    \param[in]      pDevEvent is the event passed to the handler
+//
+//    \return         None
+//*/
+//void SimpleLinkGeneralEventHandler(SlDeviceEvent_t *pDevEvent)
+//{
+//    /*
+//     * Most of the general errors are not FATAL are are to be handled
+//     * appropriately by the application
+//     */
+//    CLI_Write(" [GENERAL EVENT] \n\r");
+//}
+//
+///*!
+//    \brief This function handles socket events indication
+//
+//    \param[in]      pSock is the event passed to the handler
+//
+//    \return         None
+//*/
+//void SimpleLinkSockEventHandler(SlSockEvent_t *pSock)
+//{
+//    if(pSock == NULL)
+//        CLI_Write(" [SOCK EVENT] NULL Pointer Error \n\r");
+//
+//    switch( pSock->Event )
+//    {
+//        case SL_SOCKET_TX_FAILED_EVENT:
+//        {
+//            /*
+//            * TX Failed
+//            *
+//            * Information about the socket descriptor and status will be
+//            * available in 'SlSockEventData_t' - Applications can use it if
+//            * required
+//            *
+//            * SlSockEventData_t *pEventData = NULL;
+//            * pEventData = & pSock->EventData;
+//            */
+//            switch( pSock->EventData.status )
+//            {
+//                case SL_ECLOSE:
+//                    CLI_Write(" [SOCK EVENT] Close socket operation failed to transmit all queued packets\n\r");
+//                break;
+//
+//
+//                default:
+//                    CLI_Write(" [SOCK EVENT] Unexpected event \n\r");
+//                break;
+//            }
+//        }
+//        break;
+//
+//        default:
+//            CLI_Write(" [SOCK EVENT] Unexpected event \n\r");
+//        break;
+//    }
+//}
+///*
+// * ASYNCHRONOUS EVENT HANDLERS -- End
+// */
 
 
 /*
  * Application's entry point
  */
-int main2(int argc, char** argv)
+int sendData(uint16_t leftMaxRPM, uint16_t rightMaxRPM, uint32_t trackTime, uint32_t numCrashes)
 {
     Clock_Init48MHz();
     _i32 retVal = -1;
@@ -420,53 +420,28 @@ int main2(int argc, char** argv)
     CLI_Write(" Subscribed to uniqueID topic \n\r");
 
     // Message variables
-    uint16_t RPM_Left = 0, RPM_Right = 0;
-    int iBuf = 0;
-    char payloadDist[20] = "", payloadL[20] = "", payloadR[20] = "";
+    char payload[50] = "";
 
-    while(1){
-        rc = MQTTYield(&hMQTTClient, 10);
-        if (rc != 0) {
-            CLI_Write(" MQTT failed to yield \n\r");
-            LOOP_FOREVER();
-        }
+    rc = MQTTYield(&hMQTTClient, 10);
+    if (rc != 0) {
+        CLI_Write(" MQTT failed to yield \n\r");
+        LOOP_FOREVER();
+    }
 
-        // create message
-        MQTTMessage data;
-        data.dup = 0;
-        data.id = 0;
-        data.payload = uniqueID;
-        data.payloadlen = 8;
-        data.qos = QOS0;
-        data.retained = 0;
-        rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC, &data);
+    // create message
+    MQTTMessage data;
+    data.dup = 0;
+    data.id = 0;
+    data.payloadlen = 50;
+    data.qos = QOS0;
+    data.retained = 0;
+
+    snprintf(payload, sizeof(payload), "%d, %d, %d, %d", leftMaxRPM, rightMaxRPM, trackTime, numCrashes);
+    data.payload = payload;
+    rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC, &data);
 
 //        snprintf(payloadL, sizeof(payloadL), "%d", RPM_Left);
 //        data.payload = payloadL;
-//        rc = MQTTPublish(&hMQTTClient, RPM_LEFT, &data);
-
-        if (!publishID) {
-            int rc = 0;
-            MQTTMessage msg;
-            msg.dup = 0;
-            msg.id = 0;
-            msg.payload = uniqueID;
-            msg.payloadlen = 8;
-            msg.qos = QOS0;
-            msg.retained = 0;
-            rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC, &msg);
-
-            if (rc != 0) {
-                CLI_Write(" Failed to publish unique ID to MQTT broker \n\r");
-                LOOP_FOREVER();
-            }
-            CLI_Write(" Published unique ID successfully \n\r");
-
-            publishID = 0;
-        }
-
-        Delay(10);
-    }
 }
 
 static void generateUniqueID() {

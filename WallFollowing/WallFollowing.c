@@ -228,6 +228,7 @@ uint8_t finish_line_orientations[9] = {0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0x7F, 0x3F,
 int main(void)
 {
     uint32_t num_crashes = 0;
+    uint16_t leftMaxRPM = 0, rightMaxRPM = 0;
     uint32_t channel = 1;
     Time = MainCount = 0;
     DisableInterrupts();
@@ -278,6 +279,7 @@ int main(void)
                 {
                     Mode = 0;
                     Motor_Stop();
+                    sendData(leftMaxRPM, rightMaxRPM, TimeSeconds, num_crashes);
                     break;
                 }
             }
