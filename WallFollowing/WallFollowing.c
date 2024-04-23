@@ -192,6 +192,7 @@ uint8_t past_start = 0;
 uint8_t hit_white_paper = 0;
 uint8_t finish_line_orientations[9] = {0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0x7F, 0x3F, 0x1F, 0x0F};
 
+uint32_t num_crashes = 0;
 /* tachometer */
 uint16_t avg(uint16_t *array, int length)
 {
@@ -219,7 +220,6 @@ int32_t RightSteps;
 
 int main(void)
 {
-    uint32_t num_crashes = 0;
     uint16_t leftMaxRPM = 0, rightMaxRPM = 0;
     uint32_t channel = 1;
     Time = MainCount = 0;
@@ -249,12 +249,16 @@ int main(void)
     Motor_Forward(7000, 7000);
     past_start = 1;
 
+    Motor_Stop();
+    Mode = 0;
+
     // reset time
     TimeSeconds = 0;
 
     char command;
     while(1)
     {
+        // bluetooth
         if (MainCount % 1000 == 0){
             TimeSeconds++;
         }
@@ -327,7 +331,7 @@ int main(void)
             Mode = 0;
             Motor_Stop();
             Clock_Delay1ms(500);
-            Mode = 1;
+//            Mode = 1;
             num_crashes++;
         }
 
