@@ -45,8 +45,9 @@ void UartClear(void){ UART0_OutString("\n\r"); };
 #define OutSDec UART0_OutSDec
 #endif
 
-uint32_t *DistancesLog[1000];
+uint32_t DistancesLogInts[1000][3];
 uint32_t Distances[3];
+char DistanceString[30];
 uint32_t FilteredDistances[3];
 uint32_t Amplitudes[3];
 uint32_t Noises[3];
@@ -256,12 +257,18 @@ int main(void)
     // reset time
     TimeSeconds = 0;
 
-    // set iDist to 0
+    // initialize distance log values and set iDist to 0
+    for (int i = 0; i < 1000; i++){
+        DistancesLogInts[i][0] = NULL;
+        DistancesLogInts[i][1] = NULL;
+        DistancesLogInts[i][2] = NULL;
+    }
+
     int iDist = 0;
 
-//    Motor_Forward(7000, 7000);
-//    Mode = 1;
-//    LaunchPad_LED(0);
+    Motor_Forward(7000, 7000);
+    Mode = 1;
+    LaunchPad_LED(0);
 
     char command;
     while(1)
@@ -301,7 +308,7 @@ int main(void)
                 {
                     Mode = 0;
                     Motor_Stop();
-                    sendData(leftMaxRPM, rightMaxRPM, TimeSeconds, num_crashes);
+                    sendData(leftMaxRPM, rightMaxRPM, TimeSeconds, num_crashes, DistancesLogInts);
                     break;
                 }
             }
@@ -385,7 +392,10 @@ int main(void)
         }
 
         if (MainCount % 100 == 0){
-            DistancesLog[iDist++] = Distances;
+            DistancesLogInts[iDist][0] = Distances[0];
+            DistancesLogInts[iDist][1] = Distances[1];
+            DistancesLogInts[iDist][2] = Distances[2];
+            iDist++;
         }
 
         Controller();

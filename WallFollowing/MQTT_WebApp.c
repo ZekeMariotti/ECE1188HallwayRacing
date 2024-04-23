@@ -36,7 +36,9 @@
 #define PUBLISH_TOPIC_RIGHT "ECE1188IronmanR"
 #define PUBLISH_TOPIC_TIME "ECE1188IronmanT"
 #define PUBLISH_TOPIC_CRASHES "ECE1188IronmanC"
-#define PUBLISH_TOPIC__DISTANCES "ECE1188IronmanD"
+#define PUBLISH_TOPIC_DISTANCES0 "ECE1188IronmanD0"
+#define PUBLISH_TOPIC_DISTANCES1 "ECE1188IronmanD1"
+#define PUBLISH_TOPIC_DISTANCES2 "ECE1188IronmanD2"
 
 // MQTT message buffer size
 #define BUFF_SIZE 32
@@ -336,7 +338,7 @@ void SimpleLinkSockEventHandler(SlSockEvent_t *pSock)
 /*
  * Application's entry point
  */
-int sendData(uint16_t leftMaxRPM, uint16_t rightMaxRPM, uint32_t trackTime, uint32_t numCrashes)
+int sendData(uint16_t leftMaxRPM, uint16_t rightMaxRPM, uint32_t trackTime, uint32_t numCrashes, char *DistancesLogInts[100][3])
 {
     Clock_Init48MHz();
     _i32 retVal = -1;
@@ -457,8 +459,25 @@ int sendData(uint16_t leftMaxRPM, uint16_t rightMaxRPM, uint32_t trackTime, uint
     data.payload = payloadC;
     rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC_CRASHES, &data);
 
-//        snprintf(payloadL, sizeof(payloadL), "%d", RPM_Left);
-//        data.payload = payloadL;
+    data.payloadlen = 50;
+
+    for (int i = 0; i < 1000; i++){
+        if (DistancesLogInts[i][0] != NULL){
+            char payloadD0[50] = "", payloadD1[50] = "", payloadD2[50] = "";
+
+            snprintf(payloadD0, sizeof(payloadD0), "%d", DistancesLogInts[i][0]);
+            data.payload = payloadD0;
+            rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC_DISTANCES0, &data);
+
+            snprintf(payloadD1, sizeof(payloadD1), "%d", DistancesLogInts[i][1]);
+            data.payload = payloadD1;
+            rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC_DISTANCES1, &data);
+
+            snprintf(payloadD2, sizeof(payloadD2), "%d", DistancesLogInts[i][2]);
+            data.payload = payloadD2;
+            rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC_DISTANCES2, &data);
+        }
+    }
 }
 
 static void generateUniqueID() {
