@@ -190,40 +190,40 @@ uint8_t past_start = 0;
 uint8_t hit_white_paper = 0;
 uint8_t finish_line_orientations[9] = {0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0x7F, 0x3F, 0x1F, 0x0F};
 
-void SysTick_Handler(void)
-{
-    if (Time % 1000 == 0){
-        TimeSeconds++;
-    }
-
-    if (Time%10 == 0)
-    {
-        Reflectance_Start();
-    }
-    else if (Time%10 == 1)
-    {
-        lightSensorResult = Reflectance_End();
-        if (lightSensorResult == 0x00)
-        {
-            hit_white_paper = 1;
-        }
-        if (hit_white_paper && past_start)
-        {
-            int i;
-            for (i = 0; i < 9; i++)
-            {
-                if (lightSensorResult == finish_line_orientations[i])
-                {
-                    Mode = 0;
-                    Motor_Stop();
-                    break;
-                }
-            }
-        }
-    }
-
-    Time += 1;
-}
+//void SysTick_Handler(void)
+//{
+//    if (Time % 1000 == 0){
+//        TimeSeconds++;
+//    }
+//
+//    if (Time%10 == 0)
+//    {
+//        Reflectance_Start();
+//    }
+//    else if (Time%10 == 1)
+//    {
+//        lightSensorResult = Reflectance_End();
+//        if (lightSensorResult == 0x00)
+//        {
+//            hit_white_paper = 1;
+//        }
+//        if (hit_white_paper && past_start)
+//        {
+//            int i;
+//            for (i = 0; i < 9; i++)
+//            {
+//                if (lightSensorResult == finish_line_orientations[i])
+//                {
+//                    Mode = 0;
+//                    Motor_Stop();
+//                    break;
+//                }
+//            }
+//        }
+//    }
+//
+//    Time += 1;
+//}
 
 int main(void)
 {
@@ -260,6 +260,30 @@ int main(void)
 
     while(1)
     {
+        Reflectance_Start();
+
+        Clock_Delay1ms(1);
+
+        lightSensorResult = Reflectance_End();
+        if (lightSensorResult == 0x00)
+        {
+            hit_white_paper = 1;
+        }
+        if (hit_white_paper && past_start)
+        {
+            int i;
+            for (i = 0; i < 9; i++)
+            {
+                if (lightSensorResult == finish_line_orientations[i])
+                {
+                    Mode = 0;
+                    Motor_Stop();
+                    break;
+                }
+            }
+        }
+
+
         if(Bump_Read())
         { // collision
             Mode = 0;

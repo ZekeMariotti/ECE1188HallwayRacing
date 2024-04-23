@@ -24,4 +24,27 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>TA3InputCapture.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/inc/TA3InputCapture.c</locationURI>
+		</link>
+		<link>
+			<name>Tachometer.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/inc/Tachometer.c</locationURI>
+		</link>
+		<link>
+			<name>TimerA1.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/inc/TimerA1.c</locationURI>
+		</link>
+	</linkedResources>
+	<variableList>
+		<variable>
+			<name>copy_PARENT</name>
+			<value>$%7BPARENT-4-PROJECT_LOC%7D/Desktop/!School/2023-2024_Spring_Semester/ECE1188/tirslk_max_1_00_02</value>
+		</variable>
+	</variableList>
 </projectDescription>
