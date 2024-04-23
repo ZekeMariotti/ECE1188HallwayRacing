@@ -259,8 +259,21 @@ int main(void)
     // reset time
     TimeSeconds = 0;
 
+    char command;
     while(1)
     {
+        // blue thooth
+        command = UART0_InChar();
+        if (command == 'g') {
+            Motor_Forward(7000, 7000);
+            Mode = 1;
+            LaunchPad_LED(0);
+        }
+        else if (command == 's') {
+            Motor_Stop();
+            Mode = 0;
+            LaunchPad_LED(1);
+        }
         Reflectance_Start();
 
         Clock_Delay1ms(1);
