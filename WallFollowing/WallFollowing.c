@@ -184,7 +184,7 @@ void Pause(void)
     Mode = 1;
 }
 
-volatile uint32_t Time, MainCount;
+volatile uint32_t Time = 0, MainCount, TimeSeconds = 0;
 uint8_t lightSensorResult = 0;
 uint8_t past_start = 0;
 uint8_t hit_white_paper = 0;
@@ -192,6 +192,10 @@ uint8_t finish_line_orientations[9] = {0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0x7F, 0x3F,
 
 void SysTick_Handler(void)
 {
+    if (Time % 1000 == 0){
+        TimeSeconds++;
+    }
+
     if (Time%10 == 0)
     {
         Reflectance_Start();
@@ -250,6 +254,10 @@ int main(void)
     EnableInterrupts();
     Motor_Forward(7000, 7000);
     past_start = 1;
+
+    // reset time
+    TimeSeconds = 0;
+
     while(1)
     {
         if(Bump_Read())
