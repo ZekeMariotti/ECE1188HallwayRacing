@@ -45,6 +45,7 @@ void UartClear(void){ UART0_OutString("\n\r"); };
 #define OutSDec UART0_OutSDec
 #endif
 
+uint32_t *DistancesLog[1000];
 uint32_t Distances[3];
 uint32_t FilteredDistances[3];
 uint32_t Amplitudes[3];
@@ -255,10 +256,17 @@ int main(void)
     // reset time
     TimeSeconds = 0;
 
+    // set iDist to 0
+    int iDist = 0;
+
+//    Motor_Forward(7000, 7000);
+//    Mode = 1;
+//    LaunchPad_LED(0);
+
     char command;
     while(1)
     {
-        // bluetooth
+        // set time
         if (MainCount % 1000 == 0){
             TimeSeconds++;
         }
@@ -375,6 +383,11 @@ int main(void)
             channel = (channel+1)%3;
             OPT3101_StartMeasurementChannel(channel);
         }
+
+        if (MainCount % 100 == 0){
+            DistancesLog[iDist++] = Distances;
+        }
+
         Controller();
         WaitForInterrupt();
         MainCount++;
