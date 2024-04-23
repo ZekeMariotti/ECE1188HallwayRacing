@@ -259,6 +259,8 @@ int main(void)
     // reset time
     TimeSeconds = 0;
 
+    sendData(leftMaxRPM, rightMaxRPM, TimeSeconds, num_crashes);
+
     char command;
     while(1)
     {
