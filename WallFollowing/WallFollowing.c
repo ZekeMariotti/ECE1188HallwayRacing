@@ -188,6 +188,7 @@ volatile uint32_t Time, MainCount;
 uint8_t lightSensorResult = 0;
 uint8_t past_start = 0;
 uint8_t hit_white_paper = 0;
+uint8_t finish_line_orientations[9] = {0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0x7F, 0x3F, 0x1F, 0x0F};
 
 void SysTick_Handler(void)
 {
@@ -202,11 +203,18 @@ void SysTick_Handler(void)
         {
             hit_white_paper = 1;
         }
-        // Possibly check for more finish line orientations
-        if (((lightSensorResult == 0xff) || (lightSensorResult == 0xfe) || (lightSensorResult == 0x7e) || (lightSensorResult == 0x7f)) && (past_start != 0) && (hit_white_paper == 1))
+        if (hit_white_paper && past_start)
         {
-            Mode = 0;
-            Motor_Stop();
+            int i;
+            for (i = 0; i < 9; i++)
+            {
+                if (lightSensorResult == finish_line_orientations[i])
+                {
+                    Mode = 0;
+                    Motor_Stop();
+                    break;
+                }
+            }
         }
     }
 
@@ -215,6 +223,7 @@ void SysTick_Handler(void)
 
 int main(void)
 {
+    uint32_t num_crashes = 0;
     uint32_t channel = 1;
     Time = MainCount = 0;
     DisableInterrupts();
@@ -249,6 +258,7 @@ int main(void)
             Motor_Stop();
             Clock_Delay1ms(500);
             Mode = 1;
+            num_crashes++;
         }
 
         if(TxChannel <= 2)
