@@ -190,44 +190,10 @@ uint8_t past_start = 0;
 uint8_t hit_white_paper = 0;
 uint8_t finish_line_orientations[9] = {0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0x7F, 0x3F, 0x1F, 0x0F};
 
-//void SysTick_Handler(void)
-//{
-//    if (Time % 1000 == 0){
-//        TimeSeconds++;
-//    }
-//
-//    if (Time%10 == 0)
-//    {
-//        Reflectance_Start();
-//    }
-//    else if (Time%10 == 1)
-//    {
-//        lightSensorResult = Reflectance_End();
-//        if (lightSensorResult == 0x00)
-//        {
-//            hit_white_paper = 1;
-//        }
-//        if (hit_white_paper && past_start)
-//        {
-//            int i;
-//            for (i = 0; i < 9; i++)
-//            {
-//                if (lightSensorResult == finish_line_orientations[i])
-//                {
-//                    Mode = 0;
-//                    Motor_Stop();
-//                    break;
-//                }
-//            }
-//        }
-//    }
-//
-//    Time += 1;
-//}
+uint32_t num_crashes = 0;
 
 int main(void)
 {
-    uint32_t num_crashes = 0;
     uint16_t leftMaxRPM = 0, rightMaxRPM = 0;
     uint32_t channel = 1;
     Time = MainCount = 0;
@@ -256,6 +222,9 @@ int main(void)
     Motor_Forward(7000, 7000);
     past_start = 1;
 
+    Motor_Stop();
+    Mode = 0;
+
     // reset time
     TimeSeconds = 0;
 
@@ -264,7 +233,7 @@ int main(void)
     char command;
     while(1)
     {
-        // blue thooth
+        // bluetooth
         command = UART0_InChar();
         if (command == 'g') {
             Motor_Forward(7000, 7000);
@@ -306,7 +275,7 @@ int main(void)
             Mode = 0;
             Motor_Stop();
             Clock_Delay1ms(500);
-            Mode = 1;
+//            Mode = 1;
             num_crashes++;
         }
 
