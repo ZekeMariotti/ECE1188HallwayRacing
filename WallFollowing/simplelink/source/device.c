@@ -44,6 +44,10 @@
 #include "flowcont.h"
 #include "driver.h"
 
+#ifndef NULL
+#define NULL   ((void *) 0)
+#endif
+
 
 /*****************************************************************************/
 /* Internal functions                                                        */

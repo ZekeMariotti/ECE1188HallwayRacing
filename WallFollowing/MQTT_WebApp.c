@@ -32,6 +32,11 @@
 #define MQTT_BROKER_SERVER  "broker.hivemq.com"
 #define SUBSCRIBE_TOPIC "ECE1188Lab6_2"
 #define PUBLISH_TOPIC "ECE1188Ironman"
+#define PUBLISH_TOPIC_LEFT "ECE1188IronmanL"
+#define PUBLISH_TOPIC_RIGHT "ECE1188IronmanR"
+#define PUBLISH_TOPIC_TIME "ECE1188IronmanT"
+#define PUBLISH_TOPIC_CRASHES "ECE1188IronmanC"
+#define PUBLISH_TOPIC__DISTANCES "ECE1188IronmanD"
 
 // MQTT message buffer size
 #define BUFF_SIZE 32
@@ -420,7 +425,7 @@ int sendData(uint16_t leftMaxRPM, uint16_t rightMaxRPM, uint32_t trackTime, uint
     CLI_Write(" Subscribed to uniqueID topic \n\r");
 
     // Message variables
-    char payload[50] = "";
+    char payloadL[20] = "", payloadR[20] = "", payloadT[20] = "", payloadC[20] = "";
 
     rc = MQTTYield(&hMQTTClient, 10);
     if (rc != 0) {
@@ -432,13 +437,25 @@ int sendData(uint16_t leftMaxRPM, uint16_t rightMaxRPM, uint32_t trackTime, uint
     MQTTMessage data;
     data.dup = 0;
     data.id = 0;
-    data.payloadlen = 50;
+    data.payloadlen = 20;
     data.qos = QOS0;
     data.retained = 0;
 
-    snprintf(payload, sizeof(payload), "%d, %d, %d, %d", leftMaxRPM, rightMaxRPM, trackTime, numCrashes);
-    data.payload = payload;
-    rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC, &data);
+    snprintf(payloadL, sizeof(payloadL), "%d", leftMaxRPM);
+    data.payload = payloadL;
+    rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC_LEFT, &data);
+
+    snprintf(payloadR, sizeof(payloadR), "%d", rightMaxRPM);
+    data.payload = payloadR;
+    rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC_RIGHT, &data);
+
+    snprintf(payloadT, sizeof(payloadT), "%d", trackTime);
+    data.payload = payloadT;
+    rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC_TIME, &data);
+
+    snprintf(payloadC, sizeof(payloadC), "%d", numCrashes);
+    data.payload = payloadC;
+    rc = MQTTPublish(&hMQTTClient, PUBLISH_TOPIC_CRASHES, &data);
 
 //        snprintf(payloadL, sizeof(payloadL), "%d", RPM_Left);
 //        data.payload = payloadL;

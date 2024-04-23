@@ -13,6 +13,8 @@
 #include "FFT.h"
 #include "Reflectance.h"
 #include "SysTickInts.h"
+//#include "MQTT_WebApp.c"
+#include "Tachometer.h"
 
 // Functions and defines from Lab21_OPT3101_TestMain.c
 #define USEUART
@@ -190,40 +192,30 @@ uint8_t past_start = 0;
 uint8_t hit_white_paper = 0;
 uint8_t finish_line_orientations[9] = {0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0x7F, 0x3F, 0x1F, 0x0F};
 
-//void SysTick_Handler(void)
-//{
-//    if (Time % 1000 == 0){
-//        TimeSeconds++;
-//    }
-//
-//    if (Time%10 == 0)
-//    {
-//        Reflectance_Start();
-//    }
-//    else if (Time%10 == 1)
-//    {
-//        lightSensorResult = Reflectance_End();
-//        if (lightSensorResult == 0x00)
-//        {
-//            hit_white_paper = 1;
-//        }
-//        if (hit_white_paper && past_start)
-//        {
-//            int i;
-//            for (i = 0; i < 9; i++)
-//            {
-//                if (lightSensorResult == finish_line_orientations[i])
-//                {
-//                    Mode = 0;
-//                    Motor_Stop();
-//                    break;
-//                }
-//            }
-//        }
-//    }
-//
-//    Time += 1;
-//}
+/* tachometer */
+uint16_t avg(uint16_t *array, int length)
+{
+  int i;
+  uint32_t sum = 0;
+  for(i=0; i<length; i=i+1){
+    sum = sum + array[i];
+  }
+  return (sum/length);
+}
+
+uint16_t ActualL;
+uint16_t ActualR;
+int iBuf = 0;
+
+#define TACHBUFF 10
+uint16_t LeftTach[TACHBUFF];             // tachometer period of left wheel (number of 0.0833 usec cycles to rotate 1/360 of a wheel rotation)
+uint16_t RightTach[TACHBUFF];            // tachometer period of right wheel (number of 0.0833 usec cycles to rotate 1/360 of a wheel rotation)
+enum TachDirection LeftDir;              // direction of left rotation (FORWARD, STOPPED, REVERSE)
+enum TachDirection RightDir;             // direction of right rotation (FORWARD, STOPPED, REVERSE)
+int32_t LeftSteps;                       // number of tachometer steps of left wheel (units of 220/360 = 0.61 mm traveled)
+int32_t RightSteps;
+
+/* end tachometer */
 
 int main(void)
 {
@@ -236,6 +228,7 @@ int main(void)
     SysTick_Init(48000, 2);
     Bump_Init();
     LaunchPad_Init(); // built-in switches and LEDs
+    Tachometer_Init();
     Motor_Init();
     Motor_Stop(); // initialize and stop
     Mode = 0;
@@ -259,12 +252,14 @@ int main(void)
     // reset time
     TimeSeconds = 0;
 
-    sendData(leftMaxRPM, rightMaxRPM, TimeSeconds, num_crashes);
-
     char command;
     while(1)
     {
-        // blue thooth
+        if (MainCount % 1000 == 0){
+            TimeSeconds++;
+        }
+
+        // blue tooth
         command = UART0_InChar();
         if (command == 'g') {
             Motor_Forward(7000, 7000);
@@ -299,6 +294,32 @@ int main(void)
                 }
             }
         }
+
+        /* tachometer */
+        if (MainCount%100 == 0){
+            Tachometer_Get(&LeftTach[iBuf], &LeftDir, &LeftSteps, &RightTach[iBuf], &RightDir, &RightSteps);
+            iBuf = iBuf + 1;
+
+            if(iBuf >= TACHBUFF)
+            {
+                //Reset the buffer index
+                iBuf = 0;
+
+                //Compute the Average Revolutions Per Minute over the most recent  TACHBUFF # of Samples
+                // (1/tach step/cycles) * (12,000,000 cycles/sec) * (60 sec/min) * (1/360 rotation/step)
+                ActualL = 2000000/avg(LeftTach, TACHBUFF);
+                ActualR = 2000000/avg(RightTach, TACHBUFF);
+
+                if (ActualL > leftMaxRPM){
+                    leftMaxRPM = ActualL;
+                }
+
+                if (ActualR > rightMaxRPM){
+                    rightMaxRPM = ActualR;
+                }
+            }
+        }
+        /* end tachometer */
 
 
         if(Bump_Read())
@@ -352,5 +373,6 @@ int main(void)
         }
         Controller();
         WaitForInterrupt();
+        MainCount++;
     }
 }
