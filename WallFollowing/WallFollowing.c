@@ -280,9 +280,9 @@ int main(void)
 
     int iDist = 0;
 
-    Motor_Forward(7000, 7000);
-    Mode = 1;
-    LaunchPad_LED(0);
+//    Motor_Forward(7000, 7000);
+//    Mode = 1;
+//    LaunchPad_LED(0);
 
     char command;
     while(1)
@@ -295,7 +295,7 @@ int main(void)
         // blue tooth
         command = UART0_InChar();
         if (command == 'g') {
-            Motor_Forward(7000, 7000);
+            Motor_Forward(UL, UR);
             Mode = 1;
             LaunchPad_LED(0);
         }
