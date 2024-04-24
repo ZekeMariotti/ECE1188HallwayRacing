@@ -150,12 +150,24 @@ void Controller_Right(void)
         if(UL < (PWMNOMINAL-SWING)) UL = PWMNOMINAL-SWING; // 3,000 to 7,000
         if(UL > (PWMNOMINAL+SWING)) UL = PWMNOMINAL+SWING;
 
-        //turns left if the center measurement and right measurement is small enough that we will hit the wall if we don't turn
-        if((RightDistance<250) && (CenterDistance <250))
-        {
-            UL = 0;
-            UR = PWMNOMINAL;
+        if (CenterDistance < 150){
+            Motor_Left(1400, 1400);
+            Clock_Delay1ms(200);
         }
+
+        if (RightDistance < LeftDistance){
+            if (RightDistance < 200){
+                UL = 0;
+                UR = 1500;
+            }
+        }
+        else{
+            if (LeftDistance < 200){
+                UL = 1500;
+                UR = 0;
+            }
+        }
+
         Motor_Forward(UL,UR);
     }
 }
@@ -254,6 +266,8 @@ int main(void)
     Motor_Stop();
     Mode = 0;
 
+    int back_dir = 0;
+
     // reset time
     TimeSeconds = 0;
 
@@ -341,14 +355,30 @@ int main(void)
         /* end tachometer */
 
 
-        if(Bump_Read())
+        back_dir = Bump_Read();
+        if(back_dir)
         { // collision
             Mode = 0;
             Motor_Stop();
-            Clock_Delay1ms(500);
-//            Mode = 1;
+            Clock_Delay1ms(500); // Pause for half a second
+            Mode = 1;
             num_crashes++;
-        }
+
+            // When right bumps touch the wall
+            if (back_dir <= 0x08){
+                Motor_Backward(3000, 0);    // Go backward towards left side
+                Clock_Delay1ms(1000);       // for 1 sec
+            }
+         // When left bumps touch the wall
+         else{
+            Motor_Backward(0, 3000);    // Go backward towards right side
+            Clock_Delay1ms(1000);       // for 1 sec
+         }
+
+         back_dir = 0;
+         Motor_Forward(UL,UR);
+         }
+
 
         if(TxChannel <= 2)
         { // 0,1,2 means new data
@@ -391,6 +421,8 @@ int main(void)
             OPT3101_StartMeasurementChannel(channel);
         }
 
+        Controller_Right();
+
         if (MainCount % 100 == 0){
             DistancesLogInts[iDist][0] = Distances[0];
             DistancesLogInts[iDist][1] = Distances[1];
@@ -398,7 +430,6 @@ int main(void)
             iDist++;
         }
 
-        Controller();
         WaitForInterrupt();
         MainCount++;
     }
