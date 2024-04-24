@@ -48,9 +48,9 @@ policies, either expressed or implied, of the FreeBSD Project.
 #include "UART0.h"
 #include "msp.h"
 
-#ifndef NULL
-#define NULL   ((void *) 0)
-#endif
+//#ifndef NULL
+//#define NULL   ((void *) 0)
+//#endif
 
 //------------UART0_Init------------
 // Initialize the UART for 115,200 baud rate (assuming 12 MHz SMCLK clock),

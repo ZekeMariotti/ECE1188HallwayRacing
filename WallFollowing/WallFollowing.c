@@ -13,36 +13,36 @@
 #include "FFT.h"
 #include "Reflectance.h"
 #include "SysTickInts.h"
-//#include "MQTT_WebApp.c"
+//#include "MQTT_WebApp.h"
 #include "Tachometer.h"
 
 // Functions and defines from Lab21_OPT3101_TestMain.c
 #define USEUART
-
+//
 #ifdef USEUART
 // this batch configures for UART link to PC
 //#include "UART0.h"
-void UartSetCur(uint8_t newX, uint8_t newY)
-{
-    if(newX == 6)
-    {
-        UART0_OutString("\n\rTxChannel= ");
-        UART0_OutUDec(newY-1);
-        UART0_OutString(" Distance= ");
-    }
-    else
-    {
-        UART0_OutString("\n\r");
-    }
-}
-void UartClear(void){ UART0_OutString("\n\r"); };
-#define Init UART0_Init
-#define Clear UartClear
-#define SetCursor UartSetCur
-#define OutString UART0_OutString
-#define OutChar UART0_OutChar
-#define OutUDec UART0_OutUDec
-#define OutSDec UART0_OutSDec
+//void UartSetCur(uint8_t newX, uint8_t newY)
+//{
+//    if(newX == 6)
+//    {
+//        UART0_OutString("\n\rTxChannel= ");
+//        UART0_OutUDec(newY-1);
+//        UART0_OutString(" Distance= ");
+//    }
+//    else
+//    {
+//        UART0_OutString("\n\r");
+//    }
+//}
+//void UartClear(void){ UART0_OutString("\n\r"); };
+//#define Init UART0_Init
+//#define Clear UartClear
+//#define SetCursor UartSetCur
+//#define OutString UART0_OutString
+//#define OutChar UART0_OutChar
+//#define OutUDec UART0_OutUDec
+//#define OutSDec UART0_OutSDec
 #endif
 
 uint32_t DistancesLogInts[1000][3];
@@ -156,14 +156,14 @@ void Controller_Right(void)
         }
 
         if (RightDistance < LeftDistance){
-            if (RightDistance < 200){
+            if (RightDistance < 230){
                 UL = 0;
-                UR = 1500;
+                UR = 2000;
             }
         }
         else{
-            if (LeftDistance < 200){
-                UL = 1500;
+            if (LeftDistance < 230){
+                UL = 2000;
                 UR = 0;
             }
         }
@@ -203,8 +203,8 @@ void Pause(void)
 volatile uint32_t Time = 0, MainCount, TimeSeconds = 0;
 uint8_t lightSensorResult = 0;
 uint8_t past_start = 0;
+uint8_t white_count = 0;
 uint8_t hit_white_paper = 0;
-uint8_t finish_line_orientations[9] = {0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0x7F, 0x3F, 0x1F, 0x0F};
 
 uint32_t num_crashes = 0;
 /* tachometer */
@@ -260,11 +260,11 @@ int main(void)
     UR = UL = PWMNOMINAL; //initial power
     Pause();
     EnableInterrupts();
-    Motor_Forward(7000, 7000);
     past_start = 1;
 
     Motor_Stop();
     Mode = 0;
+    LaunchPad_LED(0);
 
     int back_dir = 0;
 
@@ -288,7 +288,7 @@ int main(void)
     while(1)
     {
         // set time
-        if (MainCount % 1000 == 0){
+        if (MainCount % 300 == 0){
             TimeSeconds++;
         }
 
@@ -297,12 +297,12 @@ int main(void)
         if (command == 'g') {
             Motor_Forward(UL, UR);
             Mode = 1;
-            LaunchPad_LED(0);
+//            LaunchPad_LED(0);
         }
         else if (command == 's') {
             Motor_Stop();
             Mode = 0;
-            LaunchPad_LED(1);
+//            LaunchPad_LED(1);
         }
         Reflectance_Start();
 
@@ -311,21 +311,26 @@ int main(void)
         lightSensorResult = Reflectance_End();
         if (lightSensorResult == 0x00)
         {
-            hit_white_paper = 1;
+            white_count++;
+            if(white_count == 5)
+            {
+                hit_white_paper = 1;
+            }
+        }
+        else
+        {
+            white_count = 0;
         }
         if (hit_white_paper && past_start)
         {
-            int i;
-            for (i = 0; i < 9; i++)
-            {
-                if (lightSensorResult == finish_line_orientations[i])
+                if (lightSensorResult != 0)
                 {
                     Mode = 0;
                     Motor_Stop();
+                    LaunchPad_LED(1);
                     sendData(leftMaxRPM, rightMaxRPM, TimeSeconds, num_crashes, DistancesLogInts);
                     break;
                 }
-            }
         }
 
         /* tachometer */
@@ -414,8 +419,8 @@ int main(void)
                     RightDistance = FilteredDistances[2] = 500;
                 }
             }
-            SetCursor(2, TxChannel+1);
-            OutUDec(FilteredDistances[TxChannel]); OutChar(','); OutUDec(Amplitudes[TxChannel]);
+//            SetCursor(2, TxChannel+1);
+//            OutUDec(FilteredDistances[TxChannel]); OutChar(','); OutUDec(Amplitudes[TxChannel]);
             TxChannel = 3; // 3 means no data
             channel = (channel+1)%3;
             OPT3101_StartMeasurementChannel(channel);
