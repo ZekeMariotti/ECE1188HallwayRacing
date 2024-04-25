@@ -5,7 +5,7 @@ Ezekiel Mariotti
 Khalid Brelvi  
 
 ├── _WallFollowing                           - Main Project Folder  
-│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── .launches                            - CCS files  
+│   ├── .launches                            - CCS files  
 │   ├── .settings                            - CCS files  
 │   ├── board                                - Lab21_OPT3101 Included Files  
 │   ├── cli_uart                             - Lab21_OPT3101 Included Files  
