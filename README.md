@@ -1,8 +1,9 @@
 # ECE1188HallwayRacing
-Aiden Seo
-Christopher Brubaker
-Ezekiel Mariotti
-Khalid Brelvi    
+Aiden Seo  
+Christopher Brubaker  
+Ezekiel Mariotti  
+Khalid Brelvi  
+
 ├── _WallFollowing                           - Main Project Folder  
 │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── .launches                            - CCS files  
 │   ├── .settings                            - CCS files  
